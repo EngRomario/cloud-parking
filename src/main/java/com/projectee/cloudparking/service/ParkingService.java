@@ -7,14 +7,23 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.projectee.cloudparking.repository.ParkingRepository;
 import org.springframework.stereotype.Service;
 
 import com.projectee.cloudparking.exception.ParkingNotFoundException;
 import com.projectee.cloudparking.model.Parking;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 public class ParkingService {
-	private static Map<String, Parking> parkingMap = new HashMap<String, Parking>();
+	private final ParkingRepository parkingRepository;
+
+	public ParkingService(ParkingRepository parkingRepository){
+		this.parkingRepository = parkingRepository;
+	}
+//	private static Map<String, Parking> parkingMap = new HashMap<String, Parking>();
 	
 //	static {
 //		String id = getUUID();
@@ -29,49 +38,48 @@ public class ParkingService {
 		// TODO Auto-generated method stub
 		return UUID.randomUUID().toString().replace("-","");
 	}
-	
+	@Transactional(readOnly=true, propagation= Propagation.SUPPORTS)
 	public List<Parking> findAll(){
-		return parkingMap.values().stream().collect(Collectors.toList());
+		return parkingRepository.findAll();
 	}
-
+	@Transactional(readOnly=true)
 	public Parking findById(String id) {
 		// TODO Auto-generated method stub
-		Parking parking = parkingMap.get(id);
-		
-		if(parking == null) {
-			throw new ParkingNotFoundException(id);
-		}
-		return parking;
-	}
+		return parkingRepository.findById(id).orElseThrow(() -> new ParkingNotFoundException(id));
 
+	}
+	@Transactional
 	public Parking create(Parking parkingCreate) {
 		// TODO Auto-generated method stub
 		String uuid = getUUID();
 		parkingCreate.setId(uuid);
 		parkingCreate.setEntryDate(LocalDateTime.now());
-		parkingMap.put(uuid,  parkingCreate);
+		parkingRepository.save(parkingCreate);
 		return parkingCreate;
 	}
-
+	@Transactional
 	public void delete(String id) {
 		// TODO Auto-generated method stub
 		findById(id);
-		parkingMap.remove(id);
+		parkingRepository.deleteById(id);
 	}
-
+	@Transactional
 	public Parking update(String id, Parking parkingCreate) {
 		// TODO Auto-generated method stub
 		Parking parking = findById(id);
 		parking.setColor(parkingCreate.getColor());
-		parkingMap.replace(id, parking);
+		parking.setLicense(parkingCreate.getLicense());
+		parking.setModel(parkingCreate.getModel());
+		parking.setState(parkingCreate.getState());
+		parkingRepository.save(parking);
 		return parking;
 	}
-
-	public Parking exit(String id) {
-		// TODO Auto-generated method stub
+	@Transactional
+	public Parking checkOut(String id){
 		Parking parking = findById(id);
 		parking.setExitDate(LocalDateTime.now());
-//		var value = parking.getExitDate() - parking.getEntryDate();
+		parking.setBill(ParkingCheckOut.getBill(parking));
+		parkingRepository.save(parking);
 		return parking;
 	}
 }

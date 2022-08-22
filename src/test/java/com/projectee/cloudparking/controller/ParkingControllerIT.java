@@ -15,7 +15,7 @@ import com.projectee.cloudparking.controller.dto.ParkingCreateDTO;
 import io.restassured.RestAssured;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class ParkingControllerIT {
+class ParkingControllerIT extends AbstractContainerBase {
 
 	@LocalServerPort
 	private int randomPort;
