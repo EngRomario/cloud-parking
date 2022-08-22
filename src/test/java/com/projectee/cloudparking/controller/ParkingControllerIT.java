@@ -28,10 +28,11 @@ class ParkingControllerIT extends AbstractContainerBase {
 	@Test
 	void whenFindAllCheckStatus() {
 		RestAssured.given()
-			.when()
-			.get("/parking")
-			.then()
-			.statusCode(HttpStatus.OK.value());
+				.header("Authorization","Basic dXNlcjpkaW9AMTIzNDU=")
+				.when()
+				.get("/parking")
+				.then()
+				.statusCode(HttpStatus.OK.value());
 	}
 	
 	@Test
@@ -43,16 +44,19 @@ class ParkingControllerIT extends AbstractContainerBase {
 		parkingCreateDTO.setState("AM");
 		
 		RestAssured.given()
-		.when()
-		.contentType(MediaType.APPLICATION_JSON_VALUE)
-		.body(parkingCreateDTO)
-		.post("/parking")
-		.then()
-		.statusCode(HttpStatus.CREATED.value())
-		.body("license", Matchers.equalTo("AMZ-9999"))
-		.body("color", Matchers.equalTo("AMARELO"))
-		.body("model", Matchers.equalTo("Brasilia"))
-		.body("state", Matchers.equalTo("AM"));
+				.auth()
+				.basic("user","dio@12345")
+				.header("Authorization","Basic dXNlcjpkaW9AMTIzNDU=")
+				.when()
+				.contentType(MediaType.APPLICATION_JSON_VALUE)
+				.body(parkingCreateDTO)
+				.post("/parking")
+				.then()
+				.statusCode(HttpStatus.CREATED.value())
+				.body("license", Matchers.equalTo("AMZ-9999"))
+				.body("color", Matchers.equalTo("AMARELO"))
+				.body("model", Matchers.equalTo("Brasilia"))
+				.body("state", Matchers.equalTo("AM"));
 	}
 
 }
