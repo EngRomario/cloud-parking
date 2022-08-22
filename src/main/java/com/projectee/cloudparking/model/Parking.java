@@ -2,15 +2,19 @@ package com.projectee.cloudparking.model;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Parking {
-	
+	@Id
 	private String id;
 	private String license;
 	private String state;
